@@ -1,0 +1,22 @@
+---
+- name: do the checksum on all file
+  hosts: localhost
+  gather_facts: false
+  vars_files:
+           - files_list.yml
+  tasks:
+         - name: run the checksum on all the file
+           stat:
+             path: "{{ item.name }}"
+           loop: "{{ files }}"
+           register: stat_result
+         - name: if the checksum is correct
+           debug:
+             msg: "Checksum is Right: {{ item.stat.path }}"
+           loop: "{{ stat_result.results }}"
+           when: item.stat.checksum == item.item.checksum
+         - name: if the checksum is wrong
+           debug:
+             msg: "Checksum is wrong: {{ item.stat.path }}"
+           loop: "{{ stat_result.results }}"
+           when: item.stat.checksum != item.item.checksum
